@@ -1,5 +1,6 @@
 # PEparser
-A parser for PE files
+A simple parser for PE files
 
 ## Program Requirements
-Python 3.5.2 @cr PyQt5
++ Python 3.5.2
++ PyQt5

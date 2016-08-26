@@ -2,6 +2,4 @@
 A parser for PE files
 
 ## Program Requirements
-Python 3.5.2
-PyQt5
-
+Python 3.5.2 @cr PyQt5

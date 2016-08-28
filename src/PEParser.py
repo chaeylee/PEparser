@@ -22,9 +22,6 @@ class PeHeader:
         
         
         
-
-
-
 class IMAGE_DOS_HEADER:
 
     DOS_HEADER = {}  # 도스헤더의 필드를 담는 딕셔너리
@@ -42,16 +39,12 @@ class IMAGE_DOS_HEADER:
 
 
 
-        
+
 if __name__ == '__main__':
 
-   
-    
     if (len(sys.argv) < 2):
         print("File name is required. Please check the usage.")
         exit(1)
-
-
 
     filename = sys.argv[1]
     f = open(filename, 'rb')

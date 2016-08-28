@@ -5,7 +5,7 @@ where <filename> is a PE file.
 """
 
 import sys
-from peheader import *
+from PEHeader import *
 
 def main():
     if (len(sys.argv) < 2):
@@ -16,7 +16,7 @@ def main():
     f = open(filename, 'rb')
     b_data = f.read()       # b_data는 프로그램의 바이너리값이 들어있다.
 
-    pe = PeHeader(b_data)   # pe는 PeHeader 클래스의 인스턴스이다
+    pe = PEHeader(b_data)   # pe는 PeHeader 클래스의 인스턴스이다
     print(pe)
     f.close()
 

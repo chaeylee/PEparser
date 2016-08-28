@@ -2,13 +2,13 @@ import sys
 import binascii
 import struct
 
-class PeHeader:
+class PEHeader:
     """
     PE Header
     -------------------------
     DOS Header
     STUB CODE // Ignore this part by pointing NT_HEADER directly using e_lfanew
-    NT Header // 24 + 96 + 8 * 16 = 248
+    NT Header // Size: 24 + 96 + 8 * 16 = 248
     Section Header (.text)
     Section Header (.data)
     Section Header (.rsrc)

@@ -26,14 +26,12 @@ class PEHeader:
         self.section_header_reloc = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248 + 120)
 
     def __str__(self):
-        result = "============\nPE HEADER\n============\n"
-        result += "DOS Header\n%s\n" % (self.dos_header)
-        result += "NT Header\n%s\n" % (self.nt_header)
-        result += "Section header offset: %d\n" % (self.nt_header.offset)
-        result += "Section header(Text)\n%s\n" % (self.section_header_text)
-        result += "Section header(Data)\n%s\n" % (self.section_header_data)
-        result += "Section header(rsrc)\n%s\n" % (self.section_header_rsrc)
-        result += "Section header(reloc)\n%s\n" % (self.section_header_reloc)
+        result = "DOS Header\n%s" % (self.dos_header)
+        result += "NT Header\n%s" % (self.nt_header)
+        result += "Section header(Text)\n%s" % (self.section_header_text)
+        result += "Section header(Data)\n%s" % (self.section_header_data)
+        result += "Section header(rsrc)\n%s" % (self.section_header_rsrc)
+        result += "Section header(reloc)\n%s" % (self.section_header_reloc)
         return result
 
 
@@ -62,7 +60,7 @@ class IMAGE_DOS_HEADER:
         return self.DOS_HEADER['e_lfanew']
 
     def __str__(self):
-        return " |- Magic: %s\n |- lfanew: %s\n" % (self.GetE_magic(), self.GetE_lfanew())
+        return " Magic\t%s\n lfanew\t%s\n" % (self.GetE_magic(), self.GetE_lfanew())
 
 
 class IMAGE_NT_HEADER:
@@ -89,11 +87,10 @@ class IMAGE_NT_HEADER:
         return self.NT_HEADER['optionalHeader']
 
     def __str__(self):
-        result = " |- Signiture: %02x\n" % (self.GetSignature())
-        result += " |- FileHeader\n%s\n" % (self.GetImageFileHeader())
-        result += " |- OptionalHeader\n%s\n" % (self.GetOptionalHeader())
+        result = " Signiture\t%02x\n" % (self.GetSignature())
+        result += " FileHeader\n%s" % (self.GetImageFileHeader())
+        result += " OptionalHeader\n%s" % (self.GetOptionalHeader())
         return result
-
 
 class IMAGE_FILE_HEADER:
     """
@@ -139,13 +136,13 @@ class IMAGE_FILE_HEADER:
         return self.FILE_HEADER['Characteristics']
 
     def __str__(self):
-        result = "  |- Machine: %s\n" % (self.GetMachine())
-        result += "  |- Number Of Sections: %s\n" % (self.GetNumberOfSections())
-        result += "  |- Time Date Stamp: %s\n" % (self.GetTimeDateStamp())
-        result += "  |- Pointer To Symbol Table: %s\n" % (self.GetPointerToSymbolTable())
-        result += "  |- Number Of Symbols: %s\n" % (self.GetNumberOfSymbols())
-        result += "  |- Size of Optional Header: %s\n" % (self.GetSizeOfOptionalHeader())
-        result += "  |- Characteristics: %s\n" % (self.GetCharacteristics())
+        result = "  Machine\t%s\n" % (self.GetMachine())
+        result += "  Number Of Sections\t%s\n" % (self.GetNumberOfSections())
+        result += "  Time Date Stamp\t%s\n" % (self.GetTimeDateStamp())
+        result += "  Pointer To Symbol Table\t%s\n" % (self.GetPointerToSymbolTable())
+        result += "  Number Of Symbols\t%s\n" % (self.GetNumberOfSymbols())
+        result += "  Size of Optional Header\t%s\n" % (self.GetSizeOfOptionalHeader())
+        result += "  Characteristics\t%s\n" % (self.GetCharacteristics())
         return result
 
 class IMAGE_OPTIONAL_HEADER:
@@ -247,20 +244,20 @@ class IMAGE_OPTIONAL_HEADER:
     def GetDataDirectory(self):
         result = ""
         for key, val in self.DATA_DIRECTORIES.items():
-            result += "   |- %s\n%s" % (key,val)
+            result += "        %s\n%s" % (key,val)
         return result
 
     def __str__(self):
-        result = "  |- Magic: %s\n" % (self.GetMagic())
-        result += "  |- Address Of Entry Point: %s\n" % (self.GetAddressOfEntryPoint())
-        result += "  |- Image Base: %s\n" % (self.GetImageBase())
-        result += "  |- Section Alignment: %s\n" % (self.GetSectionAlignment())
-        result += "  |- File Alignment: %s\n" % (self.GetFileAlignment())
-        result += "  |- Size Of Image: %s\n" % (self.GetSizeOfImage())
-        result += "  |- Size Of Headers: %s\n" % (self.GetSizeOfHeaders())
-        result += "  |- Subsystem: %s\n" % (self.GetSubsystem())
-        result += "  |- Number Of RVA And Sizes: %s\n" % (self.GetNumberOfRvaAndSizes())
-        result += "  |- Data Directory\n%s" % (self.GetDataDirectory())
+        result = "    Magic\t%s\n" % (self.GetMagic())
+        result += "    Address Of Entry Point\t%s\n" % (self.GetAddressOfEntryPoint())
+        result += "    Image Base\t%s\n" % (self.GetImageBase())
+        result += "    Section Alignment\t%s\n" % (self.GetSectionAlignment())
+        result += "    File Alignment\t%s\n" % (self.GetFileAlignment())
+        result += "    Size Of Image\t%s\n" % (self.GetSizeOfImage())
+        result += "    Size Of Headers\t%s\n" % (self.GetSizeOfHeaders())
+        result += "    Subsystem\t%s\n" % (self.GetSubsystem())
+        result += "    Number Of RVA And Sizes\t%s\n" % (self.GetNumberOfRvaAndSizes())
+        result += "    Data Directory\n%s" % (self.GetDataDirectory())
         return result
 
 
@@ -281,8 +278,8 @@ class IMAGE_DATA_DIRECTORY:
         return self.size
 
     def __str__(self):
-        result = "    |- Virtual Address: %s\n" % (self.virtualAddress)
-        result += "    |- Size: %s\n" % (self.size)
+        result = "            Virtual Address\t%s\n" % (self.virtualAddress)
+        result += "            Size\t%s\n" % (self.size)
         return result
 
 
@@ -316,9 +313,9 @@ class IMAGE_SECTION_HEADER:
         self.characteristics = binascii.hexlify(b_data[self.offset+36:self.offset+40][::-1]).decode()
 
     def __str__(self):
-        result = "    |- Virtual Size: %s\n" % (self.misc)
-        result += "    |- Virtual Address : %s\n" % (self.virtualAddress)
-        result += "    |- Size of Raw Data: %s\n" % (self.sizeOfRawData)
-        result += "    |- Pointer to Raw Data: %s\n" % (self.pointerToRawData)
-        result += "    |- Characteristics: %s\n" % (self.characteristics)
+        result = "  Virtual Size\t%s\n" % (self.misc)
+        result += "  Virtual Address\t%s\n" % (self.virtualAddress)
+        result += "  Size of Raw Data\t%s\n" % (self.sizeOfRawData)
+        result += "  Pointer to Raw Data\t%s\n" % (self.pointerToRawData)
+        result += "  Characteristics\t%s\n" % (self.characteristics)
         return result

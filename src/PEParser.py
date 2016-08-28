@@ -20,6 +20,13 @@ def main():
     print(pe)
     f.close()
 
+def loadFile(filename):
+    f = open(filename, 'rb')
+    b_data = f.read()       # b_data는 프로그램의 바이너리값이 들어있다.
+
+    pe = PEHeader(b_data)   # pe는 PeHeader 클래스의 인스턴스이다
+    f.close()
+    return pe
 
 if __name__ == '__main__':
     main()

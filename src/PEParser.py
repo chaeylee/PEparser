@@ -9,9 +9,11 @@ from peheader import *
 
 
 
+
 if __name__ == '__main__':
 
    
+    
     if (len(sys.argv) < 2):
         print("File name is required. Please check the usage.")
         exit(1)
@@ -24,13 +26,12 @@ if __name__ == '__main__':
 
     pe = PeHeader(b_data)   # pe는 PeHeader 클래스의 인스턴스이다
  
-    print(pe.dos_header.GetE_magic())  # 도스헤더의 e_magic 필드 출력
-    print(pe.dos_header.GetE_lfanew()) # 도스헤더의 e_lfanew 필드 출력
+    print("e_magic : %s" % pe.dos_header.GetE_magic())  # 도스헤더의 e_magic 필드 출력
+    print("e_lfanew : %s" % pe.dos_header.GetE_lfanew()) # 도스헤더의 e_lfanew 필드 출력
+    print("signature : %s" % pe.nt_header.GetSignature())
     
 
     f.close()
     
 
-    
-    
     

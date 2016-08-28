@@ -8,7 +8,7 @@ class PeHeader:
     -------------------------
     DOS Header
     STUB CODE // Ignore this part by pointing NT_HEADER directly using e_lfanew
-    PE Header
+    NT Header // 24 + 96 + 8 * 16 = 248
     Section Header (.text)
     Section Header (.data)
     Section Header (.rsrc)
@@ -20,12 +20,22 @@ class PeHeader:
     def __init__(self,b_data):
         self.dos_header = IMAGE_DOS_HEADER(b_data)  # dos_header는 IMAGE_DOS_HEADER 클래스의 인스턴스이다.
         self.nt_header = IMAGE_NT_HEADER(b_data)
-        self.section_header_text = None
-        self.section_header_data = None
-        self.section_header_rsrc = None
-        self.section_header_reloc = None
+        self.section_header_text = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248)
+        self.section_header_data = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248 + 40)
+        self.section_header_rsrc = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248 + 80)
+        self.section_header_reloc = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248 + 120)
+
     def __str__(self):
-        return "============\nPE HEADER\n============\nDos header\n%s\nNT Header\n%s" % (self.dos_header, self.nt_header)
+        result = "============\nPE HEADER\n============\n"
+        result += "DOS Header\n%s\n" % (self.dos_header)
+        result += "NT Header\n%s\n" % (self.nt_header)
+        result += "Section header offset: %d\n" % (self.nt_header.offset)
+        result += "Section header(Text)\n%s\n" % (self.section_header_text)
+        result += "Section header(Data)\n%s\n" % (self.section_header_data)
+        result += "Section header(rsrc)\n%s\n" % (self.section_header_rsrc)
+        result += "Section header(reloc)\n%s\n" % (self.section_header_reloc)
+        return result
+
 
 class IMAGE_DOS_HEADER:
     """
@@ -59,7 +69,7 @@ class IMAGE_NT_HEADER:
     """
     0 DWORD signature
     4 IMAGE_FILE_HEADER FileHeader
-    32 IMAGE_OPTIONAL Header32 OptionalHeader
+    24 IMAGE_OPTIONAL Header32 OptionalHeader
     """
 
     NT_HEADER = {}
@@ -185,7 +195,7 @@ class IMAGE_OPTIONAL_HEADER:
         self.OPTIONAL_HEADER['FileAlignment'] = binascii.hexlify(b_data[self.offset+36:self.offset+40][::-1]).decode()
         self.OPTIONAL_HEADER['SizeOfImage'] = binascii.hexlify(b_data[self.offset+56:self.offset+60][::-1]).decode()
         self.OPTIONAL_HEADER['SizeOfHeaders'] = binascii.hexlify(b_data[self.offset+60:self.offset+64][::-1]).decode()
-        self.OPTIONAL_HEADER['Subsystem'] = binascii.hexlify(b_data[self.offset+68:self.offset+72][::-1]).decode()
+        self.OPTIONAL_HEADER['Subsystem'] = binascii.hexlify(b_data[self.offset+68:self.offset+70][::-1]).decode()
         self.OPTIONAL_HEADER['NumberOfRvaAndSizes'] = binascii.hexlify(b_data[self.offset+92:self.offset+96][::-1]).decode()
         self.OPTIONAL_HEADER['DataDirectory'] = self.init_data_directories(b_data, self.offset+96)
 
@@ -253,6 +263,7 @@ class IMAGE_OPTIONAL_HEADER:
         result += "  |- Data Directory\n%s" % (self.GetDataDirectory())
         return result
 
+
 class IMAGE_DATA_DIRECTORY:
     """
     DWORD VirtualAddress
@@ -260,8 +271,8 @@ class IMAGE_DATA_DIRECTORY:
     """
     def __init__(self, b_data, o):
         self.offset = o
-        self.virtualAddress = binascii.hexlify(b_data[self.offset:self.offset+4]).decode()
-        self.size = binascii.hexlify(b_data[self.offset+4:self.offset+8]).decode()
+        self.virtualAddress = binascii.hexlify(b_data[self.offset:self.offset+4][::-1]).decode()
+        self.size = binascii.hexlify(b_data[self.offset+4:self.offset+8][::-1]).decode()
 
     def GetVirtualAddress(self):
         return self.virtualAddress
@@ -272,4 +283,42 @@ class IMAGE_DATA_DIRECTORY:
     def __str__(self):
         result = "    |- Virtual Address: %s\n" % (self.virtualAddress)
         result += "    |- Size: %s\n" % (self.size)
+        return result
+
+
+class IMAGE_SECTION_HEADER:
+    """
+    IMAGE_SIZEOF_SHORT_NAME = 8
+    0 BYTE Name[IMAGE_SIZEOF_SHORT_NAME];
+	8 union {
+		DWORD PhysicalAddress;
+		DWORD VirtualSize;
+	} Misc;
+	12 DWORD VirtualAddress;
+	16 DWORD SizeOfRawData;
+	20 DWORD PointerToRawData;
+	24 DWORD PointerToRelocations;
+	28 DWORD PointerToLinenumbers;
+	32 WORD NumberOfRelocations;
+	34 WORD NumberOfLinenumbers;
+	36 DWORD Characteristics;
+    """
+    def __init__(self, b_data, o):
+        self.offset = o
+        self.misc =  binascii.hexlify(b_data[self.offset+8:self.offset+12][::-1]).decode()
+        self.virtualAddress =  binascii.hexlify(b_data[self.offset+12:self.offset+16][::-1]).decode()
+        self.sizeOfRawData = binascii.hexlify(b_data[self.offset+16:self.offset+20][::-1]).decode()
+        self.pointerToRawData = binascii.hexlify(b_data[self.offset+20:self.offset+24][::-1]).decode()
+        self.pointerToRelocations = binascii.hexlify(b_data[self.offset+24:self.offset+28][::-1]).decode()
+        self.pointerToLinenumbers = binascii.hexlify(b_data[self.offset+28:self.offset+32][::-1]).decode()
+        self.numberOfRelocations = binascii.hexlify(b_data[self.offset+32:self.offset+34][::-1]).decode()
+        self.numberOfLinenumbers = binascii.hexlify(b_data[self.offset+34:self.offset+36][::-1]).decode()
+        self.characteristics = binascii.hexlify(b_data[self.offset+36:self.offset+40][::-1]).decode()
+
+    def __str__(self):
+        result = "    |- Virtual Size: %s\n" % (self.misc)
+        result += "    |- Virtual Address : %s\n" % (self.virtualAddress)
+        result += "    |- Size of Raw Data: %s\n" % (self.sizeOfRawData)
+        result += "    |- Pointer to Raw Data: %s\n" % (self.pointerToRawData)
+        result += "    |- Characteristics: %s\n" % (self.characteristics)
         return result

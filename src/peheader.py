@@ -3,6 +3,7 @@ import binascii
 import struct
 
 class PEHeader:
+
     """
     PE Header
     -------------------------
@@ -26,6 +27,10 @@ class PEHeader:
         self.section_header_reloc = IMAGE_SECTION_HEADER(b_data, self.nt_header.offset + 248 + 120)
 
     def __str__(self):
+        if str(self.dos_header) is "-1":
+            return "This is not a PE File."
+        elif str(self.nt_header) is "-1":
+            return "This is not a PE File."
         result = "DOS Header\n%s" % (self.dos_header)
         result += "NT Header\n%s" % (self.nt_header)
         result += "Section header(Text)\n%s" % (self.section_header_text)
@@ -46,13 +51,6 @@ class IMAGE_DOS_HEADER:
         self.DOS_HEADER['e_magic'] = binascii.hexlify(b_data[0:2][::-1]).decode()
         self.DOS_HEADER['e_lfanew'] = binascii.hexlify(b_data[60:64][::-1]).decode()
 
-        #little_data = b_data[0:2][::-1]
-        #a = binascii.hexlify(little_data)
-        #b = int(a.decode(),16) --> 게산
-
-        #little_data = b_data[60:64][::-1]
-        #a = binascii.hexlify(little_data)
-        #b = int(a.decode(),16)
     def GetE_magic(self):
         return self.DOS_HEADER['e_magic']
 
@@ -60,6 +58,10 @@ class IMAGE_DOS_HEADER:
         return self.DOS_HEADER['e_lfanew']
 
     def __str__(self):
+        if self.GetE_magic() is None:
+            return str(-1)
+        elif self.GetE_lfanew() is None:
+            return str(-1)
         return " Magic\t%s\n lfanew\t%s\n" % (self.GetE_magic(), self.GetE_lfanew())
 
 
@@ -78,6 +80,8 @@ class IMAGE_NT_HEADER:
         self.NT_HEADER['optionalHeader'] = IMAGE_OPTIONAL_HEADER(b_data, self.offset+24)
 
     def GetSignature(self):
+        if self.NT_HEADER['signature'] is None:
+            return -1
         return int(self.NT_HEADER['signature'], 16)
 
     def GetImageFileHeader(self):
@@ -87,6 +91,8 @@ class IMAGE_NT_HEADER:
         return self.NT_HEADER['optionalHeader']
 
     def __str__(self):
+        if self.GetSignature() is -1:
+            return str(-1)
         result = " Signiture\t%02x\n" % (self.GetSignature())
         result += " FileHeader\n%s" % (self.GetImageFileHeader())
         result += " OptionalHeader\n%s" % (self.GetOptionalHeader())
@@ -314,7 +320,7 @@ class IMAGE_SECTION_HEADER:
 
     def __str__(self):
         result = "  Virtual Size\t%s\n" % (self.misc)
-        result += "  Virtual Address\t%s\n" % (self.virtualAddress)
+        result += "  Virtual Offset\t%s\n" % (self.virtualAddress)
         result += "  Size of Raw Data\t%s\n" % (self.sizeOfRawData)
         result += "  Pointer to Raw Data\t%s\n" % (self.pointerToRawData)
         result += "  Characteristics\t%s\n" % (self.characteristics)

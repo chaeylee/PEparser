@@ -39,7 +39,6 @@ class TreeItem(object):
             data = [None for v in range(columns)]
             item = TreeItem(data, self)
             self.childItems.insert(position, item)
-
         return True
 
     def insertColumns(self, position, columns):
@@ -57,33 +56,10 @@ class TreeItem(object):
     def parent(self):
         return self.parentItem
 
-    def removeChildren(self, position, count):
-        if position < 0 or position + count > len(self.childItems):
-            return False
-
-        for row in range(count):
-            self.childItems.pop(position)
-
-        return True
-
-    def removeColumns(self, position, columns):
-        if position < 0 or position + columns > len(self.itemData):
-            return False
-
-        for column in range(columns):
-            self.itemData.pop(position)
-
-        for child in self.childItems:
-            child.removeColumns(position, columns)
-
-        return True
-
     def setData(self, column, value):
         if column < 0 or column >= len(self.itemData):
             return False
-
         self.itemData[column] = value
-
         return True
 
 
@@ -166,25 +142,6 @@ class TreeModel(QAbstractItemModel):
             return QModelIndex()
 
         return self.createIndex(parentItem.childNumber(), 0, parentItem)
-
-    def removeColumns(self, position, columns, parent=QModelIndex()):
-        self.beginRemoveColumns(parent, position, position + columns - 1)
-        success = self.rootItem.removeColumns(position, columns)
-        self.endRemoveColumns()
-
-        if self.rootItem.columnCount() == 0:
-            self.removeRows(0, self.rowCount())
-
-        return success
-
-    def removeRows(self, position, rows, parent=QModelIndex()):
-        parentItem = self.getItem(parent)
-
-        self.beginRemoveRows(parent, position, position + rows - 1)
-        success = parentItem.removeChildren(position, rows)
-        self.endRemoveRows()
-
-        return success
 
     def rowCount(self, parent=QModelIndex()):
         parentItem = self.getItem(parent)
@@ -291,11 +248,6 @@ class Example(QMainWindow):
         openAction.setStatusTip('Open PE File')
         openAction.triggered.connect(self.showDialog)
 
-        saveAction = QAction('Save', self)
-        saveAction.setShortcut('Ctrl+S')
-        saveAction.setStatusTip('Save File')
-        saveAction.triggered.connect(self.close)
-
         exitAction = QAction('Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
@@ -305,7 +257,6 @@ class Example(QMainWindow):
 
         toolbar = self.addToolBar('Open')
         toolbar.addAction(openAction)
-        toolbar.addAction(saveAction)
         toolbar.addAction(exitAction)
 
         self.setGeometry(150, 150, 800, 600)

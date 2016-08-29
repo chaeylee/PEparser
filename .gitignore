@@ -1,0 +1,4 @@
+# Notepad Binary File for testing
+*.exe
+*.pyc
+__pycache__/*
